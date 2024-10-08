@@ -1,7 +1,6 @@
 /*====
 The VPC
 ======*/
-
 resource "aws_vpc" "vpc" {
   cidr_block           = "${var.vpc_cidr}"
   enable_dns_hostnames = true
@@ -28,7 +27,8 @@ resource "aws_internet_gateway" "ig" {
 
 /* Elastic IP for NAT */
 resource "aws_eip" "nat_eip" {
-  vpc        = true
+  //vpc        = true -- Deprecated
+  domain = "vpc"
   depends_on = [aws_internet_gateway.ig]
 }
 
@@ -69,6 +69,8 @@ resource "aws_subnet" "private_subnet" {
   tags = {
     Name        = "${var.environment}-${element(var.availability_zones, count.index)}-private-subnet"
     Environment = "${var.environment}"
+    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/cluster/my_eks_cluster" = "owned"
   }
 }
 

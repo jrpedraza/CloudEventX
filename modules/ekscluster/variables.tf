@@ -56,3 +56,17 @@ variable "eks_node" {
       disk_size       = 20
     }
 }
+
+variable node_scaling_config {
+  description = "Node scaling config"
+  type = object({
+    desired_size = number
+    max_size     = number
+    min_size     = number
+  })
+  default = {
+    desired_size = 1
+    max_size     = 2
+    min_size     = 1
+  }
+}

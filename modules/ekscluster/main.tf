@@ -17,6 +17,29 @@ resource "aws_eks_cluster" "my_eks_cluster" {
   }
 }
 
+# K8s Provider configuration 
+provider "kubernetes" {
+  host                   = aws_eks_cluster.my_eks_cluster.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.my_eks_cluster.certificate_authority[0].data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.my_eks_cluster.name]
+    command     = "aws"
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = aws_eks_cluster.my_eks_cluster.endpoint
+    cluster_ca_certificate = base64decode(aws_eks_cluster.my_eks_cluster.certificate_authority[0].data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", var.eks_cluster_name]
+      command     = "aws"
+    }
+  }
+}
+
 # Create an IAM role for EKS cluster
 resource "aws_iam_role" "eks_cluster" {
   name = "eks-cluster-role"
@@ -93,9 +116,9 @@ resource "aws_eks_node_group" "my_eks_node_group" {
   disk_size       = var.eks_node.disk_size
 
   scaling_config {
-    desired_size = 2
-    max_size     = 3
-    min_size     = 1
+    desired_size = var.node_scaling_config.desired_size
+    max_size     = var.node_scaling_config.max_size
+    min_size     = var.node_scaling_config.min_size
   }
 
   depends_on = [
@@ -202,6 +225,24 @@ resource "helm_release" "alb-controller" {
   set {
     name  = "clusterName"
     value = var.eks_cluster_name
+  }
+}
+
+# create an access entry for the root account
+# data "aws_caller_identity" "current" {}
+
+resource "aws_eks_access_entry" "root_access" {
+  cluster_name  = aws_eks_cluster.my_eks_cluster.name
+  principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "root_access_policy" {
+  cluster_name  = aws_eks_cluster.my_eks_cluster.name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"  
+  access_scope {
+    type = "cluster"
   }
 }
 
