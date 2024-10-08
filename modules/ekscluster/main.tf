@@ -246,82 +246,82 @@ resource "aws_eks_access_policy_association" "root_access_policy" {
   }
 }
 
-# # Desployment de App
-# # k8s namespace
-# resource "kubernetes_namespace" "sample-application-namespace" {
-#   metadata {
-#     annotations = {
-#       name = "sample-application"
-#     }
+# Desployment de App
+# k8s namespace
+resource "kubernetes_namespace" "sample-application-namespace" {
+  metadata {
+    annotations = {
+      name = "sample-application"
+    }
 
-#     labels = {
-#       application = "sample-nginx-application"
-#     }
+    labels = {
+      application = "sample-nginx-application"
+    }
 
-#     name = "sample-application"
-#   }
-# }
+    name = "sample-application"
+  }
+}
 
-# # Policy para la app
-# module "sample_application_iam_policy" {
-#   source = "terraform-aws-modules/iam/aws//modules/iam-policy"
+# Policy para la app
+module "sample_application_iam_policy" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-policy"
 
-#   name        = "${var.environment}_sample_application_policy"
-#   path        = "/"
-#   description = "Sample Application Policy"
+  name        = "${var.environment}_sample_application_policy"
+  path        = "/"
+  description = "Sample Application Policy"
 
-#   policy = <<EOF
-#  {
-#  "Version": "2012-10-17",
-#  "Statement": [
-#      {
-#      "Action": [
-#          "ec2:Describe*"
-#      ],
-#      "Effect": "Allow",
-#      "Resource": "*"
-#      }
-#  ]
-#  }
-#  EOF
-# }
+  policy = <<EOF
+ {
+ "Version": "2012-10-17",
+ "Statement": [
+     {
+     "Action": [
+         "ec2:Describe*"
+     ],
+     "Effect": "Allow",
+     "Resource": "*"
+     }
+ ]
+ }
+ EOF
+}
 
-# # Rol para la App
+# Rol para la App
 
-# # Usamos el data source aws_caller_identity
+# Usamos el data source aws_caller_identity
 
-# module "sample_application_role" {
-#   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+module "sample_application_role" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
-#   role_name = "${var.environment}_sample_application"
-#   role_policy_arns = {
-#     policy = module.sample_application_iam_policy.arn
-#   }
+  role_name = "${var.environment}_sample_application"
+  role_policy_arns = {
+    policy = module.sample_application_iam_policy.arn
+  }
 
-#   oidc_providers = {
-#     main = {
-#       provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(aws_eks_cluster.my_eks_cluster.identity[0].oidc[0].issuer, "https://", "")}"
-#       namespace_service_accounts = ["sample-application:sample-application-sa"]
-#     }
-#   }
+  oidc_providers = {
+    main = {
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(aws_eks_cluster.my_eks_cluster.identity[0].oidc[0].issuer, "https://", "")}"
+      namespace_service_accounts = ["sample-application:sample-application-sa"]
+    }
+  }
 
-#   depends_on = [ aws_eks_cluster.my_eks_cluster ]
-# }
+  depends_on = [ aws_eks_cluster.my_eks_cluster ]
+}
 
-# # Cuenta de servicio para la App
-# resource "kubernetes_service_account" "service-account-app" {
-#   metadata {
-#     name      = "sample-application-sa"
-#     namespace = kubernetes_namespace.sample-application-namespace.metadata[0].name
-#     labels = {
-#       "app.kubernetes.io/name" = "sample-application-sa"
-#     }
-#     annotations = {
-#       "eks.amazonaws.com/role-arn"               = module.sample_application_role.iam_role_arn
-#       "eks.amazonaws.com/sts-regional-endpoints" = "true"
-#     }
-#   }
-# }
+# Cuenta de servicio para la App
+resource "kubernetes_service_account" "service-account-app" {
+  metadata {
+    name      = "sample-application-sa"
+    namespace = kubernetes_namespace.sample-application-namespace.metadata[0].name
+    labels = {
+      "app.kubernetes.io/name" = "sample-application-sa"
+    }
+    annotations = {
+      "eks.amazonaws.com/role-arn"               = module.sample_application_role.iam_role_arn
+      "eks.amazonaws.com/sts-regional-endpoints" = "true"
+    }
+  }
+}
 
 # # Despliegue de la App
 # resource "kubernetes_deployment_v1" "sample_application_deployment" {
