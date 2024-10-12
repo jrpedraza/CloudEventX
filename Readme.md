@@ -3,11 +3,12 @@
 Esta configuración de Terraform define la configuración de infraestructura para los diversos ambientes de la solucion CloudEventX. Se utilizan míltiples modulos para lograr una arquitectura comprensible. 
 
 ## Networking Module
+```hcl 
 module "networking" {
   source = "./modules/networking"
   # ... configuration ...
 }
-
+``` 
 - Configura la infraestructura de red.
 - configura VPC, subnets, y zonas de disponibilidad (AZ). 
 
