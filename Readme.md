@@ -66,10 +66,14 @@ module "secretsmanagersecret" {
 - Administra secretos mediante AWS Secret Manager. 
 - Almacena credenciales y secretos de manera segura. 
 
--- 
+--- 
 ## Observaciones 
-1. Arquitectura modular: Se usa un enfoque modular, con lo que se logra la separación de intéses. 
+1. Arquitectura modular: Se usa un enfoque modular, con lo que se logra la separación de intéreses. 
 2. Uso de variables: Intensivo uso de varibales con lo que se promueve la reusabilidad y la fácil administración de los diversos ambientes. 
 3. Dependencia de recursos: Los módulos se interconectan por lo que facilita su seguimiento. 
 4. consideraciones de seguridad: Se usa Secret Manager para el manejo de información sencible de la infraestructura. 
 5. Escalabilidad: El uso de múltiples zonas de disponibilidad (AZ) en la configuración de la red, con lo que se brinda un foco en la disponibilidad y la tolerancia a fallos. 
+
+--- 
+## Arquitectura de solucion CloudEventX 
+![Alt text](CloudEventX.drawio.svg)
