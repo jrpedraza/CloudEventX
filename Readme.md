@@ -1,7 +1,7 @@
 # Arquitectura de solucion CloudEventX 
 ![Alt text](CloudEventX.drawio.svg)
 
-A muy alto nivel la solucíon se compone de una **VPC**, la cual cuenta con dos zonas de disponibilidad **AZ** (AZ1 y AZ2), en cada ZD hay definida una subred publica y una subred privada. También se define a nivel de redes un balanceador de carga **ALB**. 
+A muy alto nivel la solucíon se compone de una **VPC**, la cual cuenta con dos zonas de disponibilidad **AZ** (AZ1 y AZ2), en cada AZ hay definida una subred publica y una subred privada. También se define a nivel de redes un balanceador de carga **ALB**. 
 
 En la subred privada se disponibiliza un **Amazon EKS**, y en la subred pública se encuentra un nat gateway **NAT**, con elque se da acceso a Internet a la subred privada. 
 
