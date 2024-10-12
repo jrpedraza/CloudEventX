@@ -19,20 +19,20 @@ module "networking" {
   availability_zones   = "${local.production_availability_zones}"
 }
 
-# module "ekscluster" {
-#   source = "./modules/ekscluster"
+module "ekscluster" {
+  source = "./modules/ekscluster"
 
-#   region               = "${var.region}"
-#   environment          = "${var.environment}"
-#   vpc_cidr             = "${var.vpc_cidr}"
-#   public_subnets_cidr  = "${var.public_subnets_cidr}"
-#   private_subnets_cidr = "${var.private_subnets_cidr}"
-#   availability_zones   = "${local.production_availability_zones}"
-#   eks_cluster_name     = "${var.eks_cluster_name}"
-#   ecr_repository_name  = "${var.ecr_repository_name}"
-#   private_subnets_id   = "${module.networking.private_subnets_id}"
-#   vpc_id               = "${module.networking.vpc_id}"
-# }
+  region               = "${var.region}"
+  environment          = "${var.environment}"
+  vpc_cidr             = "${var.vpc_cidr}"
+  public_subnets_cidr  = "${var.public_subnets_cidr}"
+  private_subnets_cidr = "${var.private_subnets_cidr}"
+  availability_zones   = "${local.production_availability_zones}"
+  eks_cluster_name     = "${var.eks_cluster_name}"
+  ecr_repository_name  = "${var.ecr_repository_name}"
+  private_subnets_id   = "${module.networking.private_subnets_id}"
+  vpc_id               = "${module.networking.vpc_id}"
+}
 
 module "database" {
   source = "./modules/database"
@@ -56,16 +56,16 @@ module "database" {
   depends_on = [ module.secretsmanagersecret ]
 }
 
-# module "cloudfront" {
-#   source = "./modules/cloudfront"
-#   aws_s3_bucket_cloudfront_name = "${var.aws_s3_bucket_cloudfront_name}"
-# }
+module "cloudfront" {
+  source = "./modules/cloudfront"
+  aws_s3_bucket_cloudfront_name = "${var.aws_s3_bucket_cloudfront_name}"
+}
 
-# module "simpleemailservice" {
-#   source = "./modules/ses"
-#   aws_ses_email_identity_email  = var.aws_ses_email_identity_email
-#   aws_iam_user_name             = var.aws_iam_user_name
-# }
+module "simpleemailservice" {
+  source = "./modules/ses"
+  aws_ses_email_identity_email  = var.aws_ses_email_identity_email
+  aws_iam_user_name             = var.aws_iam_user_name
+}
 
 module "secretsmanagersecret" {
   source = "./modules/sm" 

@@ -37,6 +37,10 @@ variable "private_subnets_id" {
   description = "Private Subnets Ids"
 }
 
+variable "vpc_id" {
+  description = "The VPC ID"
+}
+
 variable "db_instance_identifier" {
   description = "The identifier for the RDS MySQL database instance."
 }
@@ -47,4 +51,12 @@ variable "db_instance_username" {
 
 variable "db_instance_password" {
   description = "The password for the RDS MySQL database."
+}
+
+variable "aws_secretsmanager_arn"{
+  description = "The AWS Secrets Manager secret that contains the database credentials."
+}
+
+variable "aws_kms_key_arn" {
+  description = "The AWS KMS key used to encrypt the database credentials."
 }

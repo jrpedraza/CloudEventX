@@ -323,133 +323,134 @@ resource "kubernetes_service_account" "service-account-app" {
   }
 }
 
-# # Despliegue de la App
-# resource "kubernetes_deployment_v1" "sample_application_deployment" {
-#   metadata {
-#     name      = "sample-application-deployment"
-#     namespace = kubernetes_namespace.sample-application-namespace.metadata[0].name
-#     labels = {
-#       app = "nginx"
-#     }
-#   }
+# Despliegue de la App
+resource "kubernetes_deployment_v1" "sample_application_deployment" {
+  metadata {
+    name      = "sample-application-deployment"
+    namespace = kubernetes_namespace.sample-application-namespace.metadata[0].name
+    labels = {
+      app = "nginx"
+    }
+  }
 
-#   spec {
-#     replicas = 2
+  spec {
+    replicas = 2
 
-#     selector {
-#       match_labels = {
-#         app = "nginx"
-#       }
-#     }
+    selector {
+      match_labels = {
+        app = "nginx"
+      }
+    }
 
-#     template {
-#       metadata {
-#         labels = {
-#           app = "nginx"
-#         }
-#       }
+    template {
+      metadata {
+        labels = {
+          app = "nginx"
+        }
+      }
 
-#       spec {
-#         service_account_name = kubernetes_service_account.service-account-app.metadata[0].name
-#         container {
-#           image = "nginx:1.21.6"
-#           name  = "nginx"
+      spec {
+        service_account_name = kubernetes_service_account.service-account-app.metadata[0].name
+        container {
+          image = "nginx:1.21.6"
+          name  = "nginx"
 
-#           resources {
-#             limits = {
-#               cpu    = "0.5"
-#               memory = "512Mi"
-#             }
-#             requests = {
-#               cpu    = "250m"
-#               memory = "50Mi"
-#             }
-#           }
+          resources {
+            limits = {
+              cpu    = "0.5"
+              memory = "512Mi"
+            }
+            requests = {
+              cpu    = "250m"
+              memory = "50Mi"
+            }
+          }
 
-#           liveness_probe {
-#             http_get {
-#               path = "/"
-#               port = 80
+          liveness_probe {
+            http_get {
+              path = "/"
+              port = 80
 
-#               http_header {
-#                 name  = "X-Custom-Header"
-#                 value = "Awesome"
-#               }
-#             }
+              http_header {
+                name  = "X-Custom-Header"
+                value = "Awesome"
+              }
+            }
 
-#             initial_delay_seconds = 3
-#             period_seconds        = 3
-#           }
-#         }
-#       }
-#     }
-#   }
-# }
+            initial_delay_seconds = 3
+            period_seconds        = 3
+          }
+        }
+      }
+    }
+  }
+}
 
-# # Servicio de la App
-# resource "kubernetes_service_v1" "sample_application_svc" {
-#   metadata {
-#     name      = "sample-application-svc"
-#     namespace = kubernetes_namespace.sample-application-namespace.metadata[0].name
-#   }
-#   spec {
-#     selector = {
-#       app = "nginx"
-#     }
-#     session_affinity = "ClientIP"
-#     port {
-#       port        = 80
-#       target_port = 80
-#     }
+# Servicio de la App
+resource "kubernetes_service_v1" "sample_application_svc" {
+  metadata {
+    name      = "sample-application-svc"
+    namespace = kubernetes_namespace.sample-application-namespace.metadata[0].name
+  }
+  spec {
+    selector = {
+      app = "nginx"
+    }
+    session_affinity = "ClientIP"
+    port {
+      port        = 80
+      target_port = 80
+    }
 
-#     type = "NodePort"
-#   }
-# }
+    type = "NodePort"
+  }
+}
 
-# # Ingress de la App
-# resource "kubernetes_ingress_v1" "sample_application_ingress" {
-#   metadata {
-#     name      = "sample-application-ingress"
-#     namespace = kubernetes_namespace.sample-application-namespace.metadata[0].name
-#     annotations = {
-#       "kubernetes.io/ingress.class" = "alb"
-#       "alb.ingress.kubernetes.io/scheme" = "internal"
-#     }
-#   }
+# Ingress de la App
+resource "kubernetes_ingress_v1" "sample_application_ingress" {
+  metadata {
+    name      = "sample-application-ingress"
+    namespace = kubernetes_namespace.sample-application-namespace.metadata[0].name
+    annotations = {
+      "kubernetes.io/ingress.class" = "alb"
+      "alb.ingress.kubernetes.io/scheme" = "internal"
+    }
+  }
 
-#   wait_for_load_balancer = "true"
+  wait_for_load_balancer = "true"
 
-#   spec {
-#     ingress_class_name = "alb"
-#     default_backend {
-#       service {
-#         name = "sample-application-svc"
-#         port {
-#           number = 80
-#         }
-#       }
-#     }
+  spec {
+    ingress_class_name = "alb"
+    default_backend {
+      service {
+        name = "sample-application-svc"
+        port {
+          number = 80
+        }
+      }
+    }
 
-#     rule {
-#       http {
-#         path {
-#           backend {
-#             service {
-#               name = "sample-application-svc"
-#               port {
-#                 number = 80
-#               }
-#             }
-#           }
+    rule {
+      http {
+        path {
+          backend {
+            service {
+              name = "sample-application-svc"
+              port {
+                number = 80
+              }
+            }
+          }
 
-#           path = "/app1/*"
-#         }
+          # path = "/app1/*"
+          path = "/*"
+        }
 
-#       }
-#     }
+      }
+    }
 
-#     tls {
-#       secret_name = "tls-secret"
-#     }
-#   }
-# }
+    tls {
+      secret_name = "tls-secret"
+    }
+  }
+}
