@@ -17,13 +17,32 @@ Se hace uso de servicios globales de Amazon como:
 - Simple Email Service 
 - Git (externo AWS)
 
-A nivel funcional el *Cloudfront* va a recibir las peticiones procedentes de los usuario ubicados en Internet, este va a obtener el contenido alojado en el servicio *S3* y va a retornar la respuesta. Las peticiones posteriores del navagador van a ir al **ALB** y este va a distribuir convenientemente entre los servicios expuestos por el **EKS** en el que se disponibiliza la lógica de negocio de la aplicación. La capa de lógica de negocio va a servirse de un *RDS Proxy* que tiene acceso a las instancias de base de datos requeridas y se sirve de las características de tolerancia a fallas y alta disponibilidad. El servicio de base de datos usa el modelo de maestro/esclavo con lo que se logra alta disponibilidad ya que el servicio contempla una instancia de lectura/escritura y dos de lectura en zonas diferentes. 
+A nivel funcional el *Cloudfront* va a recibir las peticiones procedentes de los usuario ubicados en Internet, este va a obtener el contenido alojado en el servicio *S3* y va a retornar la respuesta. Las peticiones posteriores del navagador van a ir al **ALB** y este va a distribuir convenientemente entre los servicios expuestos por el **EKS** en el que se disponibiliza la lógica de negocio de la aplicación. La capa de lógica de negocio va a servirse de un *RDS Proxy* que tiene acceso a las instancias de base de datos requeridas<sub>*1</sub> y se sirve de las características de tolerancia a fallas y alta disponibilidad. El servicio de base de datos usa el modelo de maestro/esclavo con lo que se logra alta disponibilidad ya que el servicio contempla una instancia de lectura/escritura y dos de lectura en zonas diferentes. 
 
 La solución hace uso de una instancia de *Simple Email Service* para el envío de notificaciones, el cual tiene características de flexibilidad y escalabilidad que lo hacen ideales para la solución. 
 
 El IT Team hace uso de la solucion en dos casos de uso específicos: 
 * El primero el equipo de infraestructura tiene un proyecto de Terraform, con el que realiza el proceso de creación de la infraestructura para los diversos ambientes. 
 * En el segundo el equipo de desarrollo tiene los fuentes de sus aplicaciones en los diversos lenguajes y haciendo uso de plantillas YML y un Pipeline realiza los procesos de CI/CD.     
+
+## Instalación y ejecución
+Paso 1: clonar el repositorio. 
+```hcl 
+https://github.com/jrpedraza/CloudEventX.git
+```
+Paso 2: actualizar las variables en **./environments/dev/terraform.tfvars** acorde a los requerimientos y teniendo en cuenta en que ambiente se desea trabajar. Para el ejemplo ambiente de desarrollo (*/dev/*). 
+
+Paso 3: tener habilitado un ambiente totalmente operativo para trabajar con Terraform. 
+
+Paso 4: definir claramente y sin lugar a dudas la ubicación de almacenamiento local del estado. *Mantener el estado es de suma importancia, lo cual permite realizar operaciones de reconciliación o destrucción de recursos*. 
+
+Paso 5: comandos básicos: 
+```hcl 
+terraform init
+terraform validate
+terraform plan -var-file=environments/dev/terraform.tfvars
+terraform apply -var-file=environments/dev/terraform.tfvars -state=/custom/path/to/terraform.tfstate
+```
 
 ## Terraform AWS Infraestructura CloudEventX
 
@@ -102,3 +121,5 @@ module "secretsmanagersecret" {
 5. Escalabilidad: El uso de múltiples zonas de disponibilidad (AZ) en la configuración de la red, con lo que se brinda un foco en la disponibilidad y la tolerancia a fallos. 
 
 --- 
+### Aclaraciones
+<sub>*1</sub> Solo se muestra una instancia de base de datos, pero se contempla la creación de tantas instancias como se requieran (esto se define con el developer team).
