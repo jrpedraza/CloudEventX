@@ -13,51 +13,56 @@ module "networking" {
 - configura VPC, subnets, y zonas de disponibilidad (AZ). 
 
 ## EKS Cluster Module
+```hcl 
 module "ekscluster" {
   source = "./modules/ekscluster"
   # ... configuration ...
 }
-
+```
 - Configura un Amazon EKS (Elastic Kubernetes Service) cluster. 
 - Usa salidas del módulo de networking para VPC y subnets. 
 
 ## Database Module 
+```hcl 
 module "database" {
   source = "./modules/database"
   # ... configuration ...
 }
-
+```
 - Configura la infraestructura de bd, como la misma instancia de RDS. 
 - Usa salidas del módulo de networking para VPC y subnets. 
 - Se integra con el modulo de Secret Manager para la administración de credenciales. 
 - Hace uso de un Proxy RDS para para mejorar la eficiencia de la base de datos y escalabilidad.   
 
 ## CloudFront Module
+```hcl 
 module "cloudfront" {
   source = "./modules/cloudfront"
   aws_s3_bucket_cloudfront_name = "${var.aws_s3_bucket_cloudfront_name}"
 }
-
+```
 - Configura una distribución Amazon Cloudfront.
 - Utiliza como origen un s3 bucket para la entrega de contenido. 
 
 ## Simple Email Service (SES) Module
+```hcl 
 module "simpleemailservice" {
   source = "./modules/ses"
   aws_ses_email_identity_email = var.aws_ses_email_identity_email
   aws_iam_user_name = var.aws_iam_user_name
 }
-
+```
 - Se configura un Amazon SES para el servicio de email. 
 - Se configura un email identity y se asocia con un usuario IAM.
 
 ## Secrets Manager Module
+```hcl 
 module "secretsmanagersecret" {
   source = "./modules/sm"
   aws_secretsmanager_db_username = var.aws_secretsmanager_db_username
   aws_secretsmanager_db_password = var.aws_secretsmanager_db_password
 }
-
+```
 - Administra secretos mediante AWS Secret Manager. 
 - Almacena credenciales y secretos de manera segura. 
 
