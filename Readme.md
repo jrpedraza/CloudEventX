@@ -1,8 +1,35 @@
-# Terraform AWS Infraestructura CloudEventX
+# Arquitectura de solucion CloudEventX 
+![Alt text](CloudEventX.drawio.svg)
+
+A muy alto nivel la solucíon se compone de una **VPC**, la cual cuenta con dos zonas de disponibilidad **AZ** (AZ1 y AZ2), en cada ZD hay definida una subred publica y una subred privada. También se define a nivel de redes un balanceador de carga **ALB**. 
+
+En la subred privada se disponibiliza un **Amazon EKS**, y en la subred pública se encuentra un nat gateway **NAT**, con elque se da acceso a Internet a la subred privada. 
+
+Se hace uso de servicios globales de Amazon como: 
+- Cloudfront
+- Elastic Storage Simple Service S3
+- RDS
+- RDS Proxy 
+- AWS Codepipeline
+- AWS Codebuild 
+- AWS Codedeploy 
+- AWS Elastic Container Registry ECR
+- Simple Email Service 
+- Git (externo AWS)
+
+A nivel funcional el *Cloudfront* va a recibir las peticiones procedentes de los usuario ubicados en Internet, este va a obtener el contenido alojado en el servicio *S3* y va a retornar la respuesta. Las peticiones posteriores del navagador van a ir al **ALB** y este va a distribuir convenientemente entre los servicios expuestos por el **EKS** en el que se disponibiliza la lógica de negocio de la aplicación. La capa de lógica de negocio va a servirse de un *RDS Proxy* que tiene acceso a las instancias de base de datos requeridas y se sirve de las características de tolerancia a fallas y alta disponibilidad. El servicio de base de datos usa el modelo de maestro/esclavo con lo que se logra alta disponibilidad ya que el servicio contempla una instancia de lectura/escritura y dos de lectura en zonas diferentes. 
+
+La solución hace uso de una instancia de *Simple Email Service* para el envío de notificaciones, el cual tiene características de flexibilidad y escalabilidad que lo hacen ideales para la solución. 
+
+El IT Team hace uso de la solucion en dos casos de uso específicos: 
+* El primero el equipo de infraestructura tiene un proyecto de Terraform, con el que realiza el proceso de creación de la infraestructura para los diversos ambientes. 
+* En el segundo el equipo de desarrollo tiene los fuentes de sus aplicaciones en los diversos lenguajes y haciendo uso de plantillas YML y un Pipeline realiza los procesos de CI/CD.     
+
+## Terraform AWS Infraestructura CloudEventX
 
 Esta configuración de Terraform define la configuración de infraestructura para los diversos ambientes de la solucion CloudEventX. Se utilizan míltiples modulos para lograr una arquitectura comprensible. 
 
-## Networking Module
+### Networking Module
 ```hcl 
 module "networking" {
   source = "./modules/networking"
@@ -12,7 +39,7 @@ module "networking" {
 - Configura la infraestructura de red.
 - configura VPC, subnets, y zonas de disponibilidad (AZ). 
 
-## EKS Cluster Module
+### EKS Cluster Module
 ```hcl 
 module "ekscluster" {
   source = "./modules/ekscluster"
@@ -22,7 +49,7 @@ module "ekscluster" {
 - Configura un Amazon EKS (Elastic Kubernetes Service) cluster. 
 - Usa salidas del módulo de networking para VPC y subnets. 
 
-## Database Module 
+### Database Module 
 ```hcl 
 module "database" {
   source = "./modules/database"
@@ -34,7 +61,7 @@ module "database" {
 - Se integra con el modulo de Secret Manager para la administración de credenciales. 
 - Hace uso de un Proxy RDS para para mejorar la eficiencia de la base de datos y escalabilidad.   
 
-## CloudFront Module
+### CloudFront Module
 ```hcl 
 module "cloudfront" {
   source = "./modules/cloudfront"
@@ -44,7 +71,7 @@ module "cloudfront" {
 - Configura una distribución Amazon Cloudfront.
 - Utiliza como origen un s3 bucket para la entrega de contenido. 
 
-## Simple Email Service (SES) Module
+### Simple Email Service (SES) Module
 ```hcl 
 module "simpleemailservice" {
   source = "./modules/ses"
@@ -55,7 +82,7 @@ module "simpleemailservice" {
 - Se configura un Amazon SES para el servicio de email. 
 - Se configura un email identity y se asocia con un usuario IAM.
 
-## Secrets Manager Module
+### Secrets Manager Module
 ```hcl 
 module "secretsmanagersecret" {
   source = "./modules/sm"
@@ -67,7 +94,7 @@ module "secretsmanagersecret" {
 - Almacena credenciales y secretos de manera segura. 
 
 --- 
-## Observaciones 
+### Observaciones 
 1. Arquitectura modular: Se usa un enfoque modular, con lo que se logra la separación de intéreses. 
 2. Uso de variables: Intensivo uso de varibales con lo que se promueve la reusabilidad y la fácil administración de los diversos ambientes. 
 3. Dependencia de recursos: Los módulos se interconectan por lo que facilita su seguimiento. 
@@ -75,5 +102,3 @@ module "secretsmanagersecret" {
 5. Escalabilidad: El uso de múltiples zonas de disponibilidad (AZ) en la configuración de la red, con lo que se brinda un foco en la disponibilidad y la tolerancia a fallos. 
 
 --- 
-## Arquitectura de solucion CloudEventX 
-![Alt text](CloudEventX.drawio.svg)
