@@ -21,6 +21,10 @@ variable "private_subnets_cidr" {
   description = "The CIDR block for the private subnet"
 }
 
+# variable "vpc_id" {
+#   description = "The VPC ID"
+# }
+
 variable "eks_cluster_name" {
   description = "EKS Cluster"
 }
@@ -57,3 +61,37 @@ variable "eks_node" {
       disk_size       = 20
     }
 }
+
+// cloudfront 
+variable "aws_s3_bucket_cloudfront_name" {
+  description = "The bucket for delivery content from cloudfront"
+}
+
+// SES
+variable "aws_ses_email_identity_email" {
+  description = "ses email identity email"
+}
+
+variable "aws_iam_user_name" {
+  description = "iam user for sending emails"
+}
+
+// SMS Secrets Manager Secret
+variable "aws_secretsmanager_db_username" {
+  type        = string
+  description = "Database username"
+}
+
+variable "aws_secretsmanager_db_password" {
+  type        = string
+  description = "Database password"
+  sensitive   = true
+}
+
+# variable "aws_secretsmanager_arn"{
+#   description = "The AWS Secrets Manager secret that contains the database credentials."
+# }
+
+# variable "aws_kms_key_arn" {
+#   description = "The AWS KMS key used to encrypt the database credentials."
+# }

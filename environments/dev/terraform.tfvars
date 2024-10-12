@@ -22,3 +22,14 @@ eks_node = {
       capacity_type   = "ON_DEMAND"
       disk_size       = 20
     }
+
+/* module cloudfront */
+aws_s3_bucket_cloudfront_name = "cloudeventx-production-v1"
+
+/* simple email service */ 
+aws_ses_email_identity_email  = "jrpedraza@hotmail.com"
+aws_iam_user_name             = "usr-smtp-send-email"
+
+/* secrets manager secret */
+aws_secretsmanager_db_username = "usr-cloudeventx-api"
+aws_secretsmanager_db_password = "My$uper$3cur3P4$$w0rd"
